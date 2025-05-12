@@ -1,0 +1,52 @@
+name: "Tests"
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  validate-spi-manifest:
+    name: Validate SPI Manifest
+    runs-on: macos-15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.1.app/Contents/Developer
+      VALIDATE_SPI_MANIFEST: YES
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    - name: Validate SPI Manifest
+      run: swift package plugin validate-spi-manifest
+  unit-test-xcode:
+    name: Unit Tests (Xcode ${{ matrix.xcode }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - xcode: "15.0"
+          macos: macOS-13
+        - xcode: "15.2"
+          macos: macOS-14
+        - xcode: "15.3"
+          macos: macOS-14
+        - xcode: "15.4"
+          macos: macOS-14
+        - xcode: "16.0"
+          macos: macOS-15
+        - xcode: "16.1"
+          macos: macOS-15
+        - xcode: "16.2"
+          macos: macOS-15
+        - xcode: "16.3"
+          macos: macOS-15
+    runs-on: ${{ matrix.macos }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+    - name: Run Tests
+      run: swift test
